@@ -1,93 +1,94 @@
 import express from "express";
 import fs from "fs";
+import { fileURLToPath } from 'url';
+import path from "path";
 
 const router = express.Router();
-const products = JSON.parse(fs.readFileSync("./datos/products.json", "utf-8"));
 
-// Agregar un nuevo producto
-router.post("/", (req, res) => {
-    const { title, description, code, price, stock, category, thumbnails } =
-        req.body;
-    const newId =
-        products.length > 0 ? products[products.length - 1].id + 1 : 1;
+// Obtener la ruta al directorio actual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-    if (!title || !description || !code || !price || !stock || !category) {
-        return res
-            .status(400)
-            .json({ error: "Todos los campos son obligatorios" });
-    }
+const pathToFile = path.resolve(__dirname, "../datos/products.json");
 
-    const newProduct = {
-        id: newId,
-        title,
-        description,
-        code,
-        price,
-        status: true,
-        stock,
-        category,
-        thumbnails: thumbnails || [],
-    };
+// Verificar si el archivo existe antes de leerlo
+if (fs.existsSync(pathToFile)) {
+    // Leer el archivo JSON si existe
+    const products = JSON.parse(fs.readFileSync(pathToFile, "utf-8"));
 
-    products.push(newProduct);
-    fs.writeFileSync(
-        "./datos/products.json",
-        JSON.stringify(products, null, "\t")
-    );
-    res.json(products);
-});
+    // Operaciones CRUD (POST, PUT, DELETE) para productos
+    // Agregar un nuevo producto
+    router.post("/", (req, res) => {
+        const { title, description, code, price, stock, category, thumbnails } = req.body;
+        const newId = products.length > 0 ? products[products.length - 1].id + 1 : 1;
 
-// Actualizar un producto por su id
-router.put("/:pid", (req, res) => {
-    const { pid } = req.params;
-    const { title, description, code, price, stock, category } = req.body;
+        if (!title || !description || !code || !price || !stock || !category) {
+            return res.status(400).json({ error: "⛔ ¡Son obligatorios todos los campos!" });
+        }
 
-    const productIndex = products.findIndex((product) => product.id == pid);
+        const newProduct = {
+            id: newId,
+            title,
+            description,
+            code,
+            price,
+            status: true,
+            stock,
+            category,
+            thumbnails: thumbnails || [],
+        };
 
-    if (productIndex === -1) {
-        return res.status(404).json({
-            error: "No se encuentra el producto con el id solicitado",
-        });
-    }
+        products.push(newProduct);
+        fs.writeFileSync(pathToFile, JSON.stringify(products, null, "\t"));
+        res.json(products);
+    });
 
-    if (!title || !description || !code || !price || !stock || !category) {
-        return res
-            .status(400)
-            .json({ error: "Todos los campos son obligatorios" });
-    }
+    // Actualizar un producto por su id
+    router.put("/:pid", (req, res) => {
+        const { pid } = req.params;
+        const { title, description, code, price, stock, category } = req.body;
 
-    products[productIndex] = {
-        ...products[productIndex],
-        title,
-        description,
-        code,
-        price,
-        stock,
-        category,
-    };
+        const productIndex = products.findIndex((product) => product.id == pid);
 
-    fs.writeFileSync(
-        "./datos/products.json",
-        JSON.stringify(products, null, "\t")
-    );
-    res.json(products[productIndex]);
-});
+        if (productIndex === -1) {
+            return res.status(404).json({ error: "⛔ El producto con el id solicitado no se encuentra" });
+        }
 
-// Eliminar un producto por su id
-router.delete("/:pid", (req, res) => {
-    const { pid } = req.params;
-    const productIndex = products.findIndex((product) => product.id == pid);
+        if (!title || !description || !code || !price || !stock || !category) {
+            return res.status(400).json({ error: "⛔ ¡Son obligatorios todos los campos!" });
+        }
 
-    if (productIndex === -1) {
-        return res.status(404).json({
-            error: "No se encuentra el producto con el id solicitado",
-        });
-    }
+        products[productIndex] = {
+            ...products[productIndex],
+            title,
+            description,
+            code,
+            price,
+            stock,
+            category,
+        };
 
-    const deletedProduct = products.splice(productIndex, 1);
-    fs.writeFileSync(
-        "./datos/products.json",
-        JSON.stringify(products, null, "\t")
-    );
-    res.json(deletedProduct);
-});
+        fs.writeFileSync(pathToFile, JSON.stringify(products, null, "\t"));
+        res.json(products[productIndex]);
+    });
+
+    // Eliminar un producto por su id
+    router.delete("/:pid", (req, res) => {
+        const { pid } = req.params;
+        const productIndex = products.findIndex((product) => product.id == pid);
+
+        if (productIndex === -1) {
+            return res.status(404).json({ error: "⛔ El producto con el id solicitado no se encuentra" });
+        }
+
+        const deletedProduct = products.splice(productIndex, 1);
+        fs.writeFileSync(pathToFile, JSON.stringify(products, null, "\t"));
+        res.json(deletedProduct);
+    });
+
+} else {
+    console.error(`Error: El archivo ${pathToFile} no existe.`);
+    // Aquí podrías manejar el caso donde el archivo no existe, por ejemplo, creándolo o lanzando un error
+}
+
+export default router;

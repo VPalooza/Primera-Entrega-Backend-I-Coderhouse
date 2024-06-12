@@ -1,6 +1,5 @@
 import express from "express";
-import productsRoutes from "./routes/products.routes.js";
-import cartsRoutes from "./routes/carts.routes.js";
+import indexRoutes from "./routes/index.js";
 
 const app = express();
 const PORT = 8080;
@@ -8,9 +7,9 @@ const PORT = 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Rutas bajo /api
+app.use('/api', indexRoutes);
+
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto http://localhost:${PORT}`);
 });
-
-app.use('/api/products', productsRoutes);
-app.use('/api/carts', cartsRoutes);
