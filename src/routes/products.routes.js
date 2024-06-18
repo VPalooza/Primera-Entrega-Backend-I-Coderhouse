@@ -17,6 +17,12 @@ if (fs.existsSync(pathToFile)) {
     const products = JSON.parse(fs.readFileSync(pathToFile, "utf-8"));
 
     // Operaciones CRUD (POST, PUT, DELETE) para productos
+
+    // Obtener todos los productos
+    router.get("/", (req, res) => {
+        res.json(products);
+    });
+
     // Agregar un nuevo producto
     router.post("/", (req, res) => {
         const { title, description, code, price, stock, category, thumbnails } = req.body;
@@ -88,7 +94,7 @@ if (fs.existsSync(pathToFile)) {
 
 } else {
     console.error(`Error: El archivo ${pathToFile} no existe.`);
-    // Aquí podrías manejar el caso donde el archivo no existe, por ejemplo, creándolo o lanzando un error
+    //Error en consola en caso de no existir el json
 }
 
 export default router;

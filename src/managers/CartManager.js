@@ -35,7 +35,7 @@ class CartManager {
                 JSON.stringify(this.carts, null, "\t")
             );
 
-            console.log("Se creo el carrito correctamente");
+            console.log("Se creó el carrito correctamente");
         } catch (error) {
             throw new Error(error);
         }
@@ -43,14 +43,14 @@ class CartManager {
 
     async getCart(idCart) {
         if (isNaN(Number(idCart))) {
-            console.log("El id debe ser un número");
-            throw new Error("El id debe ser un número");
+            console.log("El id debe ser un número");
+            throw new Error("El id debe ser un número");
         }
 
         const cart = this.carts.find((cart) => cart.id === Number(idCart));
 
         if (!cart) {
-            throw new Error("No se encontro el carto");
+            throw new Error("No se encontró el carrito");
         }
 
         return cart;
@@ -60,13 +60,13 @@ class CartManager {
         const cart = await this.getCart(idCart);
 
         if (!cart) {
-            throw new Error("No se encontro el carto");
+            throw new Error("No se encontró el carrito");
         }
 
         const product = await productManager.getProductById(idProduct);
 
         if (!product) {
-            throw new Error("No se encontro el producto");
+            throw new Error("No se encontró el producto");
         }
 
         const productInCart = cart.products.find(
@@ -90,10 +90,15 @@ class CartManager {
                 this.path,
                 JSON.stringify(this.carts, null, "\t")
             );
-            console.log("Se agrego el producto correctamente");
+            console.log("Se agregó el producto correctamente");
         } catch (error) {
             throw new Error(error);
         }
+    }
+
+    // Nuevo método para obtener todos los carritos
+    async getAllCarts() {
+        return this.carts;
     }
 }
 
